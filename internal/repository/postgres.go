@@ -8,3 +8,8 @@ import (
 	_ "github.com/lib/pq"
 )
 
+type PostgresRepo struct {
+	DB *sql.DB
+}
+
+func NewPostgresRepo(connectionString string)
