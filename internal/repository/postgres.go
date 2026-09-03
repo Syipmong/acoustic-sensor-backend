@@ -1,15 +1,18 @@
 package repository
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 
-	"acoustic-sensor-backend/internal/domain"
+	"github.com/Syipmong/acoustic-sensor-backend/internal/domain"
 	_ "github.com/lib/pq"
 )
 
-type PostgresRepo struct {
-	DB *sql.DB
+type PostgresRepository struct {
+	db *sql.DB
 }
 
-func NewPostgresRepo(connectionString string)
+func NewPostgresRepository(db *sql.DB) *PostgresRepository{
+	return &PostgresRepository{db:db}
+}
