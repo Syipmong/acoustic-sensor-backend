@@ -12,6 +12,6 @@ type Alert struct {
 	Longitude    float64   `json:"longitude"`
 	Confidence   uint8     `json:"confidence"`
 	BatteryVolts float32   `json:"battery_volts"`
-	Signature    []byte    `json:"signature"`
+	SignatureRS    []byte    `json:"signature_r_s"`
 	CreatedAt    time.Time `json:"created_at"`
 }
