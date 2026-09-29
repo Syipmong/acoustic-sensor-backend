@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"github.com/Syipmong/acoustic-sensor/internal/domain"
+	"github.com/Syipmong/acoustic-sensor-server/internal/domain"
 	_ "github.com/lib/pq"
 )
 

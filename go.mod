@@ -1,4 +1,4 @@
-module github.com/Syipmong/acoustic-sensor
+module github.com/Syipmong/acoustic-sensor-server
 
 go 1.25.6
 
