@@ -30,3 +30,22 @@ func NewAlertHAndler(u AlertUsecaseInterface) *AlertHandler{
 		activeClients: make(map[*websocket.Conn]bool),
 	}
 }
+
+func (h *AlertHandler) IngestLoraPacket(w http.ResponseWriter, r *http.Request){
+	var alert domain.Alert
+	if err := json.NewDecoder(r.Body).Decode(&alert);
+	err != nil {
+		http.Error(w, "Invalid Payload format", http.StatusBadRequest)
+		return
+	}
+
+	err := h.usecase.ProcessIncomingFrame(r.Context(), nil, &alert)
+	if err != nil {
+		log.Printf("Security Alert: %v", err)
+		http.Error(w, "Unauthorised Frame",http.StatusUnauthorized)
+		return
+	}
+	h.broadcastToMobileClients(alert)
+	w.WriteHeader(http.StatusCreated)
+}
+
