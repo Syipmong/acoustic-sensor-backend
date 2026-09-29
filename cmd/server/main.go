@@ -43,5 +43,18 @@ func main(){
 	alertRepo := repository.NewPostgresRepository(db)
 	alertUsecase := usecase.NewAlertUsecase(alertRepo, nodePubKey)
 	alertHandler := deliveryhttp.newAlertHandler(alertUsecase)
-	
+
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/v1/ingest", alertHandler.IngestLoraPacket)
+	mux.HandleFunc("/ws/alerts", alertHandler.MobileWebsocketEndpoint)
+
+	port := os.Getenv("PORT")
+	if port == ""{
+		port = "8080"
+	}
+	log.Printf("Sensor Server Active on port %s", port)
+	if err := http.ListenAndServe(":"+port, mux); err != nil {
+		log.Fatal("Server Crashed: %v", err)
+	}
 }
