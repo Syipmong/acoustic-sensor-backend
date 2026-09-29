@@ -24,7 +24,7 @@ func loadNodePublicKey() *ecdsa.PublicKey {
 func main() {
 	dsn := os.Getenv("POSTGRES_DSN")
 	if dsn == "" {
-		dsn = "postgres://postgres:password@localhost:5432/aetech_forensics?sslmode=disable"
+		dsn = "postgres://9893f8bb05046918e126e05550985e761362a231e630c8b1c41e6fff1bf3666b:sk_4pvadnSaJ7GZESuOUwwJ7@pooled.db.prisma.io:5432/postgres?sslmode=require"
 	}
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
