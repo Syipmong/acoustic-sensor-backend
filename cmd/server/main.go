@@ -32,5 +32,16 @@ func main(){
 		log.Fatalf("failed to open database connection: %v", err)
 	}
 	defer db.Close()
-}
 
+	if err := db.Ping(); err != nil {
+		log.Fatalf("Failed to ping database: %v", err)
+	}
+	log.Println("PostgresSQL connection pool established")
+
+	nodePubKey := loadNodePublicKey()
+
+	alertRepo := repository.NewPostgresRepository(db)
+	alertUsecase := usecase.NewAlertUsecase(alertRepo, nodePubKey)
+	alertHandler := deliveryhttp.newAlertHandler(alertUsecase)
+	
+}
