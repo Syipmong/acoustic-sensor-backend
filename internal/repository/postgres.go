@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 
-	"/acoustic-sensor-backend/internal/domain"
+	"github.com/Syipmong/acoustic-sensor-backend/internal/domain"
 	_ "github.com/lib/pq"
 )
 
@@ -12,12 +12,12 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
-func NewPostgresRepository(db *sql.DB) *PostgresRepository{
-	return &PostgresRepository{db:db}
+func NewPostgresRepository(db *sql.DB) *PostgresRepository {
+	return &PostgresRepository{db: db}
 }
 
-//Log Alert to insert a veried forensic into the table
-func (r *PostgresRepository) LogAlert(ctx context.Context, alert *domain.Alert) error{
+// LogAlert inserts a verified alert into the database.
+func (r *PostgresRepository) LogAlert(ctx context.Context, alert *domain.Alert) error {
 
 	query := `
 	INSERT INTO acoustic_alerts

@@ -1,18 +1,18 @@
 package http
 
 import (
-	"acoustic-sensor-backend/internal/domain"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
+	"sync"
 
-	"acoustic-sensor-backend/internal/domain"
+	"github.com/Syipmong/acoustic-sensor-backend/internal/domain"
 	"github.com/gorilla/websocket"
 )
 
 var upgrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool{ return true},
+	CheckOrigin: func(r *http.Request) bool { return true },
 }
 
 type AlertUsecaseInterface interface {
@@ -20,21 +20,21 @@ type AlertUsecaseInterface interface {
 }
 
 type AlertHandler struct {
-	usecase AlertUsecaseInterface
-	activeClients  map[*websocket.Conn]bool
+	usecase       AlertUsecaseInterface
+	activeClients map[*websocket.Conn]bool
+	clientsMu     sync.Mutex
 }
 
-func NewAlertHAndler(u AlertUsecaseInterface) *AlertHandler{
+func NewAlertHandler(u AlertUsecaseInterface) *AlertHandler {
 	return &AlertHandler{
-		usecase: u,
+		usecase:       u,
 		activeClients: make(map[*websocket.Conn]bool),
 	}
 }
 
-func (h *AlertHandler) IngestLoraPacket(w http.ResponseWriter, r *http.Request){
+func (h *AlertHandler) IngestLoraPacket(w http.ResponseWriter, r *http.Request) {
 	var alert domain.Alert
-	if err := json.NewDecoder(r.Body).Decode(&alert);
-	err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&alert); err != nil {
 		http.Error(w, "Invalid Payload format", http.StatusBadRequest)
 		return
 	}
@@ -42,24 +42,39 @@ func (h *AlertHandler) IngestLoraPacket(w http.ResponseWriter, r *http.Request){
 	err := h.usecase.ProcessIncomingFrame(r.Context(), nil, &alert)
 	if err != nil {
 		log.Printf("Security Alert: %v", err)
-		http.Error(w, "Unauthorised Frame",http.StatusUnauthorized)
+		http.Error(w, "Unauthorised Frame", http.StatusUnauthorized)
 		return
 	}
 	h.broadcastToMobileClients(alert)
 	w.WriteHeader(http.StatusCreated)
 }
 
-func (h *AlertHandler) MobileWebsocketEndpoint(w http.Responsewriter, r *http.Request){
+func (h *AlertHandler) MobileWebsocketEndpoint(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Printf("websocket upgrade Failed: %v", err)
 		return
 	}
+	h.clientsMu.Lock()
 	h.activeClients[ws] = true
+	h.clientsMu.Unlock()
+
+	for {
+		if _, _, err := ws.ReadMessage(); err != nil {
+			h.clientsMu.Lock()
+			delete(h.activeClients, ws)
+			h.clientsMu.Unlock()
+			ws.Close()
+			return
+		}
+	}
 }
 
-func (h *AlertHandler) broadcastToMobileClients(alert domain.Alert){
-	for client := range h.activeClients{
+func (h *AlertHandler) broadcastToMobileClients(alert domain.Alert) {
+	h.clientsMu.Lock()
+	defer h.clientsMu.Unlock()
+
+	for client := range h.activeClients {
 		err := client.WriteJSON(alert)
 		if err != nil {
 			client.Close()
