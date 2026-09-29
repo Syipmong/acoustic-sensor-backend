@@ -7,7 +7,7 @@ import (
 	"errors"
 	"math/big"
 
-	"github.com/Syipmong/acoustic-sensor-backend/internal/domain"
+	"github.com/Syipmong/acoustic-sensor/internal/domain"
 )
 
 type AlertRepository interface {

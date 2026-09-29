@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/Syipmong/acoustic-sensor-backend/internal/domain"
+	"github.com/Syipmong/acoustic-sensor/internal/domain"
 	"github.com/gorilla/websocket"
 )
 

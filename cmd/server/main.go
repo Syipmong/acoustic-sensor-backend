@@ -8,9 +8,9 @@ import (
 	"net/http"
 	"os"
 
-	deliveryhttp "github.com/Syipmong/acoustic-sensor-backend/internal/delivery/http"
-	"github.com/Syipmong/acoustic-sensor-backend/internal/repository"
-	"github.com/Syipmong/acoustic-sensor-backend/internal/usecase"
+	deliveryhttp "github.com/Syipmong/acoustic-sensor/internal/delivery/http"
+	"github.com/Syipmong/acoustic-sensor/internal/repository"
+	"github.com/Syipmong/acoustic-sensor/internal/usecase"
 
 	_ "github.com/lib/pq"
 )
